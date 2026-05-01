@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathQuest 🚀 Saxon 7/6 Tutor</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══ RESET & BASE ═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0d1a;
+  --card: #1a1a2e;
+  --card2: #16213e;
+  --border: #2a2a4a;
+  --pink: #e94560;
+  --purple: #7c3aed;
+  --teal: #06d6a0;
+  --gold: #ffd60a;
+  --blue: #4cc9f0;
+  --orange: #f77f00;
+  --text: #f0f0f0;
+  --muted: #8888aa;
+  --radius: 16px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ═══ SCREENS ════════════════════════════════════════════════════════════════ */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ═══ SETUP SCREEN ═══════════════════════════════════════════════════════════ */
+#setup-screen {
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #1a1a3e 0%, #0d0d1a 70%);
+  padding: 24px;
+}
+.setup-box {
+  background: var(--card);
+  border: 2px solid var(--purple);
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(124,58,237,0.3);
+}
+.setup-box h1 { font-size: 2.8rem; font-weight: 900; margin-bottom: 8px; }
+.setup-box h1 span { color: var(--gold); }
+.setup-box p { color: var(--muted); margin-bottom: 28px; font-size: 1.1rem; }
+.setup-box input[type="text"] {
+  width: 100%; padding: 14px 18px; font-size: 1.1rem;
+  font-family: 'Nunito', sans-serif; font-weight: 700;
+  background: var(--card2); border: 2px solid var(--border);
+  border-radius: 12px; color: var(--text); margin-bottom: 24px;
+  transition: border-color 0.2s;
+}
+.setup-box input:focus { outline: none; border-color: var(--purple); }
+
+.avatar-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin-bottom: 28px;
+}
+.avatar-btn {
+  background: var(--card2); border: 3px solid var(--border);
+  border-radius: 14px; padding: 16px 8px; font-size: 2.2rem;
+  cursor: pointer; transition: all 0.2s; display: flex;
+  flex-direction: column; align-items: center; gap: 4px;
+}
+.avatar-btn span.label { font-size: 0.75rem; color: var(--muted); font-weight: 700; }
+.avatar-btn:hover { border-color: var(--purple); transform: scale(1.05); }
+.avatar-btn.selected { border-color: var(--gold); background: rgba(255,214,10,0.1); box-shadow: 0 0 20px rgba(255,214,10,0.3); }
+
+.btn-primary {
+  width: 100%; padding: 16px; font-size: 1.2rem;
+  font-family: 'Nunito', sans-serif; font-weight: 900;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  border: none; border-radius: 14px; color: white;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 1px;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,0.5); }
+.btn-primary:active { transform: translateY(0); }
+
+/* ═══ MAIN APP ═══════════════════════════════════════════════════════════════ */
+#main-screen { background: var(--bg); }
+
+/* ─── Header ─── */
+.header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-avatar { font-size: 1.8rem; }
+.header-name { font-weight: 800; font-size: 1rem; flex: 1; }
+.header-name small { display: block; color: var(--muted); font-size: 0.75rem; font-weight: 600; }
+.stat-chip {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 12px; font-weight: 800;
+  font-size: 0.9rem; white-space: nowrap;
+}
+.stat-chip .icon { font-size: 1rem; }
+#streak-chip .icon { color: #ff6b35; }
+#xp-chip .icon { color: var(--gold); }
+#level-chip { background: linear-gradient(135deg, var(--purple), var(--pink)); border: none; }
+
+/* ─── Tab Nav ─── */
+.tab-nav {
+  display: flex; gap: 0;
+  background: var(--card2);
+  border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  flex: 1; padding: 14px; font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 0.95rem; background: none;
+  border: none; color: var(--muted); cursor: pointer;
+  border-bottom: 3px solid transparent; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--purple); }
+.tab-btn#tab-push.active { border-bottom-color: var(--orange); }
+.tab-btn#tab-pull.active { border-bottom-color: var(--teal); }
+.tab-btn#tab-badges.active { border-bottom-color: var(--gold); }
+
+/* ─── Tab Content ─── */
+.tab-content { display: none; flex: 1; overflow-y: auto; }
+.tab-content.active { display: block; }
+
+/* ═══ DASHBOARD / PUSH MODE ══════════════════════════════════════════════════ */
+.push-container { padding: 20px; max-width: 680px; margin: 0 auto; }
+
+.daily-header {
+  text-align: center; margin-bottom: 20px;
+}
+.daily-header h2 { font-size: 1.6rem; font-weight: 900; }
+.daily-header h2 span { color: var(--orange); }
+.daily-header p { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+
+/* Progress bar */
+.quest-progress {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 20px;
+}
+.quest-progress .label {
+  display: flex; justify-content: space-between;
+  font-weight: 800; font-size: 0.9rem; margin-bottom: 8px;
+}
+.progress-track {
+  background: var(--card2); border-radius: 99px; height: 16px; overflow: hidden;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--orange), var(--pink));
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+}
+.progress-stars { display: flex; gap: 4px; margin-top: 10px; justify-content: center; }
+.progress-star { font-size: 1.4rem; transition: all 0.3s; filter: grayscale(1) opacity(0.3); }
+.progress-star.earned { filter: none; animation: starPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* Problem card */
+.problem-card {
+  background: var(--card); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 16px;
+  box-shadow: var(--shadow); transition: border-color 0.3s;
+}
+.problem-card.correct { border-color: var(--teal); box-shadow: 0 0 30px rgba(6,214,160,0.3); }
+.problem-card.wrong { border-color: var(--pink); animation: shake 0.4s; }
+
+.problem-meta {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.problem-category {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 4px 10px; font-size: 0.75rem;
+  font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+}
+.problem-emoji { font-size: 1.8rem; }
+.problem-title { font-weight: 900; font-size: 1.1rem; flex: 1; }
+.difficulty-dots { display: flex; gap: 3px; }
+.difficulty-dots span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); display: block;
+}
+.difficulty-dots span.filled { background: var(--gold); }
+
+.problem-text {
+  font-size: 1.1rem; line-height: 1.7; margin-bottom: 20px;
+  background: var(--card2); border-radius: 12px; padding: 16px;
+  border-left: 4px solid var(--orange);
+}
+
+.answer-area { display: flex; gap: 10px; flex-wrap: wrap; }
+.answer-input {
+  flex: 1; min-width: 200px;
+  padding: 14px 16px; font-size: 1.1rem;
+  font-family: 'Nunito', sans-serif; font-weight: 700;
+  background: var(--card2); border: 2px solid var(--border);
+  border-radius: 12px; color: var(--text); transition: border-color 0.2s;
+}
+.answer-input:focus { outline: none; border-color: var(--purple); }
+.answer-input:disabled { opacity: 0.5; }
+
+.btn-check {
+  padding: 14px 24px; font-family: 'Nunito', sans-serif;
+  font-weight: 900; font-size: 1rem;
+  background: linear-gradient(135deg, var(--teal), #00b4d8);
+  border: none; border-radius: 12px; color: #000; cursor: pointer;
+  transition: all 0.2s; white-space: nowrap;
+}
+.btn-check:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(6,214,160,0.4); }
+.btn-check:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-hint {
+  padding: 14px 18px; font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 0.95rem;
+  background: var(--card2); border: 2px solid var(--border);
+  border-radius: 12px; color: var(--text); cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.btn-hint:hover { border-color: var(--gold); color: var(--gold); }
+.btn-hint:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.tutor-response {
+  margin-top: 16px; padding: 16px;
+  background: var(--card2); border-radius: 12px;
+  border-left: 4px solid var(--purple);
+  font-size: 1rem; line-height: 1.6;
+  display: none;
+}
+.tutor-response.visible { display: block; animation: slideIn 0.3s ease; }
+.tutor-response.loading::after {
+  content: '';
+  display: inline-block; width: 18px; height: 18px;
+  border: 3px solid var(--border); border-top-color: var(--purple);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+  vertical-align: middle; margin-left: 8px;
+}
+
+.btn-next {
+  width: 100%; margin-top: 16px;
+  padding: 16px; font-family: 'Nunito', sans-serif;
+  font-weight: 900; font-size: 1.1rem;
+  background: linear-gradient(135deg, var(--orange), var(--pink));
+  border: none; border-radius: 14px; color: white;
+  cursor: pointer; transition: all 0.2s; display: none;
+}
+.btn-next.visible { display: block; animation: slideIn 0.3s ease; }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(249,127,0,0.4); }
+
+.all-done-card {
+  background: linear-gradient(135deg, var(--card), var(--card2));
+  border: 2px solid var(--gold); border-radius: var(--radius);
+  padding: 40px; text-align: center;
+  box-shadow: 0 0 60px rgba(255,214,10,0.2);
+}
+.all-done-card h2 { font-size: 2rem; font-weight: 900; margin-bottom: 8px; }
+.all-done-card p { color: var(--muted); font-size: 1.1rem; }
+.trophy-big { font-size: 5rem; display: block; margin-bottom: 16px; }
+
+/* ═══ PULL MODE (Chat) ════════════════════════════════════════════════════════ */
+.pull-container {
+  display: flex; flex-direction: column;
+  height: calc(100vh - 120px);
+  max-width: 680px; margin: 0 auto;
+}
+
+.chat-intro {
+  background: linear-gradient(135deg, rgba(6,214,160,0.1), rgba(76,201,240,0.05));
+  border: 1px solid rgba(6,214,160,0.2);
+  border-radius: var(--radius); margin: 16px; padding: 16px;
+  font-size: 0.95rem; color: var(--muted); line-height: 1.5;
+}
+.chat-intro strong { color: var(--teal); }
+
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.msg {
+  max-width: 85%; padding: 14px 16px;
+  border-radius: 18px; font-size: 1rem; line-height: 1.6;
+  animation: slideIn 0.25s ease;
+}
+.msg-user {
+  background: linear-gradient(135deg, var(--purple), #5b21b6);
+  color: white; align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.msg-tutor {
+  background: var(--card); border: 1px solid var(--border);
+  align-self: flex-start; border-bottom-left-radius: 4px;
+}
+.msg-tutor .tutor-label {
+  display: block; font-size: 0.75rem; font-weight: 800;
+  color: var(--teal); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.msg-typing {
+  background: var(--card); border: 1px solid var(--border);
+  align-self: flex-start; border-bottom-left-radius: 4px;
+  padding: 16px; display: flex; gap: 6px; align-items: center;
+}
+.typing-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--muted);
+  animation: typingBounce 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+.chat-input-area {
+  padding: 12px 16px; border-top: 1px solid var(--border);
+  background: var(--card); display: flex; gap: 10px; align-items: flex-end;
+}
+.chat-textarea {
+  flex: 1; padding: 12px 14px; font-size: 1rem;
+  font-family: 'Nunito', sans-serif; font-weight: 600;
+  background: var(--card2); border: 2px solid var(--border);
+  border-radius: 14px; color: var(--text); resize: none;
+  min-height: 48px; max-height: 120px; line-height: 1.5;
+  transition: border-color 0.2s;
+}
+.chat-textarea:focus { outline: none; border-color: var(--teal); }
+.btn-voice {
+  padding: 12px; background: var(--card2); border: 2px solid var(--border);
+  border-radius: 12px; color: var(--muted); cursor: pointer;
+  font-size: 1.2rem; transition: all 0.2s; line-height: 1;
+}
+.btn-voice:hover { border-color: var(--teal); color: var(--teal); }
+.btn-voice.listening {
+  border-color: var(--pink); color: var(--pink);
+  animation: pulse 1s infinite;
+}
+.btn-send {
+  padding: 12px 18px; font-family: 'Nunito', sans-serif;
+  font-weight: 900; font-size: 0.95rem;
+  background: linear-gradient(135deg, var(--teal), #00b4d8);
+  border: none; border-radius: 12px; color: #000;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.btn-send:hover { transform: translateY(-2px); }
+.btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ═══ BADGES SCREEN ══════════════════════════════════════════════════════════ */
+.badges-container { padding: 20px; max-width: 680px; margin: 0 auto; }
+.badges-header { text-align: center; margin-bottom: 24px; }
+.badges-header h2 { font-size: 1.6rem; font-weight: 900; }
+.badges-header p { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+.badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+.badge-card {
+  background: var(--card); border: 2px solid var(--border);
+  border-radius: var(--radius); padding: 20px 14px;
+  text-align: center; transition: all 0.3s;
+}
+.badge-card.earned {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(255,214,10,0.25);
+  animation: badgeGlow 2s ease-in-out infinite alternate;
+}
+.badge-card.locked { opacity: 0.4; filter: grayscale(1); }
+.badge-icon { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+.badge-name { font-weight: 900; font-size: 0.85rem; margin-bottom: 4px; }
+.badge-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+
+/* Level progress section */
+.level-section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 24px;
+}
+.level-section h3 { font-weight: 900; font-size: 1rem; margin-bottom: 12px; }
+.level-bar-bg {
+  background: var(--card2); border-radius: 99px; height: 20px; overflow: hidden;
+  position: relative;
+}
+.level-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--pink), var(--gold));
+  border-radius: 99px; transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 900; color: white;
+}
+.level-label {
+  display: flex; justify-content: space-between;
+  font-size: 0.85rem; color: var(--muted); margin-top: 8px;
+}
+
+/* ═══ CELEBRATION OVERLAY ═════════════════════════════════════════════════════ */
+#celebration {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 9999; overflow: hidden;
+  display: none;
+}
+.confetti-piece {
+  position: absolute; width: 10px; height: 14px;
+  opacity: 0; animation: confettiFall 2s ease-in forwards;
+  border-radius: 2px;
+}
+.xp-popup {
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--gold), #ff9500);
+  color: #000; font-weight: 900; font-size: 1.4rem;
+  padding: 12px 28px; border-radius: 99px;
+  z-index: 9998; display: none;
+  animation: xpFloat 1.5s ease-out forwards;
+  white-space: nowrap;
+}
+
+/* ═══ ANIMATIONS ══════════════════════════════════════════════════════════════ */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+@keyframes starPop {
+  0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+  60% { transform: scale(1.3) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(233,69,96,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(233,69,96,0); }
+}
+@keyframes typingBounce {
+  0%,60%,100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translateY(-20px) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+}
+@keyframes xpFloat {
+  0% { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.8); }
+  20% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.1); }
+  70% { opacity: 1; transform: translateX(-50%) translateY(-10px) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(0.9); }
+}
+@keyframes badgeGlow {
+  from { box-shadow: 0 0 10px rgba(255,214,10,0.2); }
+  to { box-shadow: 0 0 30px rgba(255,214,10,0.5); }
+}
+
+/* ═══ RESPONSIVE ══════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .setup-box { padding: 24px; }
+  .setup-box h1 { font-size: 2rem; }
+  .header { gap: 8px; }
+  .stat-chip { padding: 5px 9px; font-size: 0.8rem; }
+  .problem-text { font-size: 1rem; }
+  .badges-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SETUP SCREEN ════════════════════════════════════════════════════════ -->
+<div id="setup-screen" class="screen active">
+  <div class="setup-box">
+    <h1>Math<span>Quest</span> 🚀</h1>
+    <p>Your AI math tutor for Saxon 7/6</p>
+
+    <label style="display:block;text-align:left;font-weight:800;font-size:0.9rem;margin-bottom:8px;color:var(--muted);">WHAT'S YOUR NAME?</label>
+    <input type="text" id="setup-name" placeholder="Enter your name..." maxlength="20">
+
+    <label style="display:block;text-align:left;font-weight:800;font-size:0.9rem;margin-bottom:12px;color:var(--muted);">PICK YOUR HERO</label>
+    <div class="avatar-grid">
+      <button class="avatar-btn" data-avatar="🦁" onclick="selectAvatar(this)">🦁<span class="label">LION</span></button>
+      <button class="avatar-btn" data-avatar="🐉" onclick="selectAvatar(this)">🐉<span class="label">DRAGON</span></button>
+      <button class="avatar-btn" data-avatar="🤖" onclick="selectAvatar(this)">🤖<span class="label">ROBOT</span></button>
+      <button class="avatar-btn" data-avatar="🦊" onclick="selectAvatar(this)">🦊<span class="label">FOX</span></button>
+      <button class="avatar-btn" data-avatar="🧙" onclick="selectAvatar(this)">🧙<span class="label">WIZARD</span></button>
+      <button class="avatar-btn" data-avatar="🦸" onclick="selectAvatar(this)">🦸<span class="label">HERO</span></button>
+    </div>
+
+    <button class="btn-primary" onclick="startApp()">START YOUR QUEST →</button>
+  </div>
+</div>
+
+<!-- ═══ MAIN SCREEN ═════════════════════════════════════════════════════════ -->
+<div id="main-screen" class="screen">
+
+  <!-- Header -->
+  <header class="header">
+    <span class="header-avatar" id="header-avatar">🚀</span>
+    <div class="header-name">
+      <span id="header-name">Hero</span>
+      <small id="header-level">Level 1 Math Cadet</small>
+    </div>
+    <div class="stat-chip" id="streak-chip">
+      <span class="icon">🔥</span>
+      <span id="streak-val">0</span>d
+    </div>
+    <div class="stat-chip" id="xp-chip">
+      <span class="icon">⭐</span>
+      <span id="xp-val">0</span>
+    </div>
+    <div class="stat-chip" id="level-chip">
+      Lv<span id="level-val">1</span>
+    </div>
+  </header>
+
+  <!-- Tab Nav -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" id="tab-push" onclick="switchTab('push')">
+      ⚔️ Daily Quest
+    </button>
+    <button class="tab-btn" id="tab-pull" onclick="switchTab('pull')">
+      💬 Ask Tutor
+    </button>
+    <button class="tab-btn" id="tab-badges" onclick="switchTab('badges')">
+      🏆 Badges
+    </button>
+  </nav>
+
+  <!-- ─── PUSH: Daily Quest ─── -->
+  <div id="tab-push-content" class="tab-content active">
+    <div class="push-container">
+      <div class="daily-header">
+        <h2>⚔️ Daily <span>Quest</span></h2>
+        <p id="daily-date">Loading today's challenges...</p>
+      </div>
+
+      <div class="quest-progress">
+        <div class="label">
+          <span>Today's Quest</span>
+          <span><span id="solved-count">0</span>/5 complete</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="progress-stars" id="progress-stars">
+          <span class="progress-star">⭐</span>
+          <span class="progress-star">⭐</span>
+          <span class="progress-star">⭐</span>
+          <span class="progress-star">⭐</span>
+          <span class="progress-star">⭐</span>
+        </div>
+      </div>
+
+      <div id="problem-area"></div>
+    </div>
+  </div>
+
+  <!-- ─── PULL: Ask Tutor ─── -->
+  <div id="tab-pull-content" class="tab-content">
+    <div class="pull-container">
+      <div class="chat-intro">
+        <strong>🧙 Your Math Tutor</strong> — I'll never just hand you the answer (that would be cheating ourselves!), but I WILL help you figure it out step by step. Ask me anything about your math work!
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg msg-tutor">
+          <span class="tutor-label">MathQuest</span>
+          Hey! What math problem do you want to tackle today? Type it out or hit the 🎤 mic button to say it!
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-textarea" id="chat-input" placeholder="Type your question or problem here..." rows="1"
+          onkeydown="chatKeydown(event)" oninput="autoResize(this)"></textarea>
+        <button class="btn-voice" id="voice-btn" onclick="toggleVoice()" title="Speak your question">🎤</button>
+        <button class="btn-send" id="send-btn" onclick="sendChat()">Send →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── BADGES ─── -->
+  <div id="tab-badges-content" class="tab-content">
+    <div class="badges-container">
+      <div class="badges-header">
+        <h2>🏆 Your Badges</h2>
+        <p id="badges-subtitle">Earn them all!</p>
+      </div>
+
+      <div class="level-section">
+        <h3>Level Progress — <span id="level-display">Level 1: Math Cadet</span></h3>
+        <div class="level-bar-bg">
+          <div class="level-bar-fill" id="level-bar" style="width:0%">0%</div>
+        </div>
+        <div class="level-label">
+          <span id="xp-display">0 XP</span>
+          <span id="next-level-display">100 XP to next level</span>
+        </div>
+      </div>
+
+      <div class="badges-grid" id="badges-grid"></div>
+    </div>
+  </div>
+
+</div><!-- end main-screen -->
+
+<!-- Celebration elements -->
+<div id="celebration"></div>
+<div class="xp-popup" id="xp-popup"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// PROBLEM BANK — Saxon Math 7/6 aligned, real-world problems
+// ═══════════════════════════════════════════════════════════════════════════
+
+const PROBLEMS = [
+  // ── FRACTIONS ──
+  {
+    id:'f1', category:'Fractions', emoji:'🍕', title:'Pizza Party',
+    problem:'Marcus ordered 2 pizzas for his birthday. After the party, 3/8 of the first pizza and 5/8 of the second pizza were left over. What fraction of a whole pizza is left over total? Write your answer as a fraction or whole number.',
+    answer:1, answerKey:'1 or 8/8',
+    difficulty:1
+  },
+  {
+    id:'f2', category:'Fractions', emoji:'🚴', title:'Bike Trail',
+    problem:'A hiking trail is 4½ miles long. Sofia has already walked 1¾ miles. How many more miles does she need to walk to finish the trail? Write your answer as a mixed number.',
+    answer:2.75, answerKey:'2 3/4',
+    difficulty:2
+  },
+  {
+    id:'f3', category:'Fractions', emoji:'🎂', title:'Baking Day',
+    problem:'A cookie recipe calls for 2½ cups of flour. You want to make 1½ times the recipe for a school bake sale. How many cups of flour do you need?',
+    answer:3.75, answerKey:'3 3/4',
+    difficulty:2
+  },
+  {
+    id:'f4', category:'Fractions', emoji:'💧', title:'Water Bottles',
+    problem:'Jordan drank 2/3 of a water bottle during soccer practice. His sister drank 3/4 of an identical water bottle. Who drank more? How much more did they drink? Express your answer as a fraction.',
+    answer:0.0833, answerKey:'1/12 more (sister drank more)',
+    difficulty:2
+  },
+  {
+    id:'f5', category:'Fractions', emoji:'🏗️', title:'Building a Bookshelf',
+    problem:'A shelf needs to be divided equally into 6 sections. If the whole shelf is 4½ feet long, how long is each section? Give your answer as a fraction.',
+    answer:0.75, answerKey:'3/4 foot',
+    difficulty:2
+  },
+  {
+    id:'f6', category:'Fractions', emoji:'🎁', title:'Gift Ribbon',
+    problem:'You have 5¼ yards of ribbon. You need 7/8 yard for each gift bow. How many complete bows can you make?',
+    answer:6, answerKey:'6 bows',
+    difficulty:3
+  },
+
+  // ── DECIMALS ──
+  {
+    id:'d1', category:'Decimals', emoji:'⛽', title:'Gas Station',
+    problem:'Gas costs $3.89 per gallon. Your dad\'s truck needs 12.5 gallons to fill up. How much will it cost to fill the tank? Round to the nearest cent.',
+    answer:48.625, answerKey:'$48.63',
+    difficulty:2
+  },
+  {
+    id:'d2', category:'Decimals', emoji:'🛒', title:'Grocery Run',
+    problem:'At the grocery store, apples cost $1.49 per pound, cheese costs $4.79 per pound, and bread costs $3.25 per loaf. You buy 2.5 pounds of apples, 0.75 pounds of cheese, and 2 loaves of bread. What is your total bill?',
+    answer:13.82, answerKey:'$13.82',
+    difficulty:2
+  },
+  {
+    id:'d3', category:'Decimals', emoji:'🏃', title:'Track Practice',
+    problem:'Amir ran 400 meters in 58.4 seconds on Monday. On Wednesday he ran it in 56.79 seconds. How many seconds faster was his Wednesday time?',
+    answer:1.61, answerKey:'1.61 seconds',
+    difficulty:1
+  },
+  {
+    id:'d4', category:'Decimals', emoji:'🌡️', title:'Temperature Drop',
+    problem:'The temperature at noon was 72.4°F. By midnight it had dropped to 51.8°F. What was the temperature drop? If the temperature drops the same amount the next night, what will the midnight temperature be?',
+    answer:20.6, answerKey:'Drop: 20.6°F; Next midnight: 31.2°F',
+    difficulty:2
+  },
+  {
+    id:'d5', category:'Decimals', emoji:'💻', title:'Saving Up',
+    problem:'A gaming headset costs $47.99. You have saved $12.50 and earn $6.75 per hour mowing lawns. How many full hours do you need to work to afford the headset?',
+    answer:6, answerKey:'6 hours (you\'d have $53 which is enough)',
+    difficulty:2
+  },
+
+  // ── PERCENTS ──
+  {
+    id:'p1', category:'Percents', emoji:'🎮', title:'Video Game Sale',
+    problem:'A video game normally costs $60. It\'s on sale for 25% off. What is the sale price?',
+    answer:45, answerKey:'$45',
+    difficulty:1
+  },
+  {
+    id:'p2', category:'Percents', emoji:'🏀', title:'Free Throw Stats',
+    problem:'In basketball practice, Tyler attempted 40 free throws and made 34 of them. What percentage of his free throws did he make?',
+    answer:85, answerKey:'85%',
+    difficulty:1
+  },
+  {
+    id:'p3', category:'Percents', emoji:'🍔', title:'Restaurant Bill',
+    problem:'Your family\'s restaurant bill is $68.00. Your parents want to leave a 20% tip. How much is the tip? What is the total amount paid?',
+    answer:81.6, answerKey:'Tip: $13.60, Total: $81.60',
+    difficulty:2
+  },
+  {
+    id:'p4', category:'Percents', emoji:'📱', title:'Phone Storage',
+    problem:'Your phone has 128 GB of storage. You\'ve used 96 GB. What percent of your storage is used? What percent is still free?',
+    answer:75, answerKey:'75% used, 25% free',
+    difficulty:1
+  },
+  {
+    id:'p5', category:'Percents', emoji:'📈', title:'Follower Growth',
+    problem:'A gaming channel had 500 subscribers in January. By June it had 750 subscribers. What is the percent increase in subscribers?',
+    answer:50, answerKey:'50% increase',
+    difficulty:2
+  },
+  {
+    id:'p6', category:'Percents', emoji:'🏪', title:'Store Markup',
+    problem:'A store buys shoes for $40 and sells them for $70. What is the percent markup on the shoes?',
+    answer:75, answerKey:'75%',
+    difficulty:2
+  },
+  {
+    id:'p7', category:'Percents', emoji:'🧪', title:'Science Quiz',
+    problem:'Emma got 23 out of 25 questions correct on her science quiz. What percentage did she get correct? Does she pass if passing is 90%?',
+    answer:92, answerKey:'92% — yes, she passes!',
+    difficulty:1
+  },
+
+  // ── RATIOS ──
+  {
+    id:'r1', category:'Ratios', emoji:'🎨', title:'Paint Mix',
+    problem:'To make a special shade of green paint, you mix 2 parts blue to 3 parts yellow. If you want to make 20 cups of this green paint total, how many cups of blue and how many cups of yellow do you need?',
+    answer:8, answerKey:'8 cups blue, 12 cups yellow',
+    difficulty:2
+  },
+  {
+    id:'r2', category:'Ratios', emoji:'🏫', title:'Class Ratio',
+    problem:'In a class of 30 students, the ratio of boys to girls is 2:3. How many boys are in the class? How many girls?',
+    answer:12, answerKey:'12 boys, 18 girls',
+    difficulty:1
+  },
+  {
+    id:'r3', category:'Ratios', emoji:'🚗', title:'Road Trip',
+    problem:'A car travels 300 miles on 12 gallons of gas. At this rate, how far can the car travel on 20 gallons?',
+    answer:500, answerKey:'500 miles',
+    difficulty:1
+  },
+  {
+    id:'r4', category:'Ratios', emoji:'🍋', title:'Lemonade Stand',
+    problem:'Your lemonade recipe calls for 3 cups of lemon juice to make 12 cups of lemonade. You want to make 20 cups of lemonade. How many cups of lemon juice do you need?',
+    answer:5, answerKey:'5 cups',
+    difficulty:1
+  },
+  {
+    id:'r5', category:'Ratios', emoji:'🗺️', title:'Map Scale',
+    problem:'On a map, 1 inch represents 50 miles. Two cities are 3.5 inches apart on the map. What is the actual distance between the cities?',
+    answer:175, answerKey:'175 miles',
+    difficulty:1
+  },
+  {
+    id:'r6', category:'Ratios', emoji:'⚽', title:'Soccer League',
+    problem:'A soccer team won 15 games and lost 5 games this season. Write the ratio of wins to total games. What percent of games did they win?',
+    answer:75, answerKey:'Ratio: 15:20 or 3:4; Percent: 75%',
+    difficulty:2
+  },
+
+  // ── GEOMETRY ──
+  {
+    id:'g1', category:'Geometry', emoji:'🏡', title:'Garden Design',
+    problem:'You\'re designing a rectangular garden that is 15 feet long and 8 feet wide. What is the perimeter of the garden (total fencing needed)? What is the area (total planting space)?',
+    answer:46, answerKey:'Perimeter: 46 ft, Area: 120 sq ft',
+    difficulty:1
+  },
+  {
+    id:'g2', category:'Geometry', emoji:'🍕', title:'Pizza Geometry',
+    problem:'A pizza has a diameter of 14 inches. What is the radius? Using π ≈ 3.14, what is the area of the pizza? Round to the nearest whole number.',
+    answer:154, answerKey:'Radius: 7 in, Area: ≈154 sq in',
+    difficulty:2
+  },
+  {
+    id:'g3', category:'Geometry', emoji:'📦', title:'Moving Box',
+    problem:'A moving box is 2 feet long, 1.5 feet wide, and 1.5 feet tall. What is the volume of the box in cubic feet?',
+    answer:4.5, answerKey:'4.5 cubic feet',
+    difficulty:2
+  },
+  {
+    id:'g4', category:'Geometry', emoji:'🔺', title:'Triangle Field',
+    problem:'A triangular park has a base of 120 meters and a height of 85 meters. What is the area of the park in square meters?',
+    answer:5100, answerKey:'5,100 square meters',
+    difficulty:2
+  },
+  {
+    id:'g5', category:'Geometry', emoji:'🪟', title:'Window Frame',
+    problem:'A rectangular window is 36 inches wide and 48 inches tall. You need to put weather stripping around the entire border. How many inches of weather stripping do you need?',
+    answer:168, answerKey:'168 inches (or 14 feet)',
+    difficulty:1
+  },
+  {
+    id:'g6', category:'Geometry', emoji:'🧊', title:'Fish Tank',
+    problem:'An aquarium is 30 inches long, 12 inches wide, and 15 inches tall. What is the volume in cubic inches? How many cubic feet is that? (1 cubic foot = 1,728 cubic inches)',
+    answer:5400, answerKey:'5,400 cubic inches ≈ 3.125 cubic feet',
+    difficulty:3
+  },
+
+  // ── MIXED WORD PROBLEMS ──
+  {
+    id:'w1', category:'Word Problems', emoji:'💰', title:'Allowance Math',
+    problem:'Alex gets $12 allowance per week. He saves 1/3 of it, spends 25% on games, and uses the rest for snacks. How much money per week goes to each category?',
+    answer:4, answerKey:'Saves $4, Games $3, Snacks $5',
+    difficulty:2
+  },
+  {
+    id:'w2', category:'Word Problems', emoji:'🎪', title:'Carnival Tickets',
+    problem:'Carnival ride tickets cost $0.75 each. Most rides need 4 tickets, but the big roller coaster needs 7 tickets. You have $15 to spend. If you want to ride the roller coaster twice and other rides as many times as possible, how many regular rides can you take?',
+    answer:2, answerKey:'2 regular rides (spend $10.50 on coaster, $1.50 left = 2 tickets = not enough for a regular ride — actually 0! After coaster x2 = $10.50, left = $4.50 = 6 tickets = 1 regular ride)',
+    difficulty:3
+  },
+  {
+    id:'w3', category:'Word Problems', emoji:'📚', title:'Reading Challenge',
+    problem:'The school reading challenge runs for 6 weeks. Madison reads 45 pages per day on weekdays and 75 pages per day on weekends. How many pages does she read in the entire 6-week challenge?',
+    answer:2250, answerKey:'2,250 pages',
+    difficulty:2
+  },
+  {
+    id:'w4', category:'Word Problems', emoji:'🏊', title:'Pool Filling',
+    problem:'A swimming pool holds 18,000 gallons. A hose fills it at 60 gallons per minute. How many hours will it take to fill the pool completely?',
+    answer:5, answerKey:'5 hours',
+    difficulty:2
+  },
+  {
+    id:'w5', category:'Word Problems', emoji:'🎯', title:'Fundraiser Goal',
+    problem:'The 6th grade class needs to raise $1,500 for a field trip. They\'ve already raised $487.50. They plan to sell cookies for $1.25 each. How many cookies do they need to sell to reach their goal?',
+    answer:810, answerKey:'810 cookies',
+    difficulty:3
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BADGES CONFIG
+// ═══════════════════════════════════════════════════════════════════════════
+
+const BADGES = [
+  { id:'first', icon:'🌟', name:'First Star', desc:'Get your first correct answer', check: s => s.totalCorrect >= 1 },
+  { id:'hat3', icon:'🔥', name:'On Fire', desc:'3 correct in a row', check: s => s.streak3 },
+  { id:'fire5', icon:'⚡', name:'Lightning', desc:'5 correct in a row', check: s => s.streak5 },
+  { id:'daily3', icon:'📅', name:'Daily Warrior', desc:'Use MathQuest 3 days in a row', check: s => s.dayStreak >= 3 },
+  { id:'week7', icon:'🏆', name:'Week Champ', desc:'Use MathQuest 7 days straight', check: s => s.dayStreak >= 7 },
+  { id:'frac10', icon:'🍕', name:'Fraction Fighter', desc:'Solve 10 fraction problems', check: s => (s.categoryCount.Fractions||0) >= 10 },
+  { id:'pct10', icon:'💯', name:'Percent Pro', desc:'Solve 10 percent problems', check: s => (s.categoryCount.Percents||0) >= 10 },
+  { id:'geo10', icon:'📐', name:'Geometry Genius', desc:'Solve 10 geometry problems', check: s => (s.categoryCount.Geometry||0) >= 10 },
+  { id:'word10', icon:'📖', name:'Word Wizard', desc:'Solve 10 word problems', check: s => (s.categoryCount['Word Problems']||0) >= 10 },
+  { id:'quest', icon:'🗡️', name:'Quest Complete', desc:'Finish all 5 daily challenges', check: s => s.questComplete },
+  { id:'lv5', icon:'🚀', name:'Math Rocket', desc:'Reach Level 5', check: s => s.level >= 5 },
+  { id:'lv10', icon:'👑', name:'Math Master', desc:'Reach Level 10', check: s => s.level >= 10 },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEVEL CONFIG
+// ═══════════════════════════════════════════════════════════════════════════
+
+const LEVELS = [
+  { level:1, name:'Math Cadet', xpNeeded:0 },
+  { level:2, name:'Number Ninja', xpNeeded:100 },
+  { level:3, name:'Fraction Fighter', xpNeeded:250 },
+  { level:4, name:'Decimal Destroyer', xpNeeded:500 },
+  { level:5, name:'Percent Pro', xpNeeded:850 },
+  { level:6, name:'Ratio Ranger', xpNeeded:1300 },
+  { level:7, name:'Geometry Knight', xpNeeded:1900 },
+  { level:8, name:'Algebra Apprentice', xpNeeded:2700 },
+  { level:9, name:'Math Warrior', xpNeeded:3700 },
+  { level:10, name:'Math Master', xpNeeded:5000 },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+let state = {
+  name: '',
+  avatar: '🚀',
+  xp: 0,
+  level: 1,
+  dayStreak: 0,
+  lastDate: '',
+  totalCorrect: 0,
+  correctInARow: 0,
+  streak3: false,
+  streak5: false,
+  categoryCount: {},
+  earnedBadges: [],
+  questComplete: false,
+  todayDate: '',
+  todaySolved: 0,
+  todayProblemIds: [],
+  setup: false,
+};
+
+let todayProblems = [];
+let currentProblemIdx = 0;
+let chatHistory = [];
+let recognition = null;
+let isListening = false;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════════════════════════
+
+function saveState() {
+  localStorage.setItem('mq_state', JSON.stringify(state));
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('mq_state');
+    if (s) state = { ...state, ...JSON.parse(s) };
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SETUP
+// ═══════════════════════════════════════════════════════════════════════════
+
+let selectedAvatar = '🦁';
+
+function selectAvatar(btn) {
+  document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedAvatar = btn.dataset.avatar;
+}
+
+function startApp() {
+  const nameInput = document.getElementById('setup-name').value.trim();
+  if (!nameInput) {
+    document.getElementById('setup-name').style.borderColor = 'var(--pink)';
+    document.getElementById('setup-name').placeholder = 'Hey! Enter your name first 😄';
+    return;
+  }
+  state.name = nameInput;
+  state.avatar = selectedAvatar;
+  state.setup = true;
+  saveState();
+  initMain();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════
+
+function init() {
+  loadState();
+  if (state.setup) {
+    initMain();
+  } else {
+    showScreen('setup-screen');
+  }
+}
+
+function initMain() {
+  showScreen('main-screen');
+  updateHeader();
+  checkDayStreak();
+  buildDailyProblems();
+  buildBadges();
+  renderBadgesScreen();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function checkDayStreak() {
+  const today = getTodayStr();
+  if (state.lastDate === '') {
+    state.dayStreak = 1;
+  } else if (state.lastDate === getYesterdayStr()) {
+    state.dayStreak += 1;
+  } else if (state.lastDate !== today) {
+    state.dayStreak = 1;
+  }
+  state.lastDate = today;
+  saveState();
+}
+
+function getTodayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+function getYesterdayStr() {
+  const d = new Date(); d.setDate(d.getDate()-1);
+  return d.toISOString().split('T')[0];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HEADER UPDATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+function updateHeader() {
+  document.getElementById('header-avatar').textContent = state.avatar;
+  document.getElementById('header-name').textContent = state.name;
+  document.getElementById('streak-val').textContent = state.dayStreak;
+  document.getElementById('xp-val').textContent = state.xp;
+  const lvl = getCurrentLevel();
+  document.getElementById('level-val').textContent = lvl.level;
+  document.getElementById('header-level').textContent = lvl.name;
+  state.level = lvl.level;
+}
+
+function getCurrentLevel() {
+  let lv = LEVELS[0];
+  for (const l of LEVELS) {
+    if (state.xp >= l.xpNeeded) lv = l;
+    else break;
+  }
+  return lv;
+}
+
+function getNextLevel() {
+  const cur = getCurrentLevel();
+  return LEVELS.find(l => l.level === cur.level + 1) || null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════════════
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab + '-content').classList.add('active');
+  if (tab === 'badges') renderBadgesScreen();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DAILY PROBLEMS (PUSH MODE)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function buildDailyProblems() {
+  const today = getTodayStr();
+  document.getElementById('daily-date').textContent = formatDate(today);
+
+  if (state.todayDate !== today) {
+    state.todayDate = today;
+    state.todaySolved = 0;
+    state.questComplete = false;
+    state.todayProblemIds = selectDailyProblems(today);
+    saveState();
+  }
+
+  todayProblems = state.todayProblemIds.map(id => PROBLEMS.find(p => p.id === id)).filter(Boolean);
+  currentProblemIdx = state.todaySolved;
+  updateQuestProgress();
+  renderCurrentProblem();
+}
+
+function selectDailyProblems(dateStr) {
+  // Deterministic selection based on date — same problems all day
+  const seed = dateStr.replace(/-/g,'');
+  const n = parseInt(seed) % 1000;
+  const categories = ['Fractions','Decimals','Percents','Ratios','Geometry','Word Problems'];
+  const selected = [];
+
+  for (let i = 0; i < 5; i++) {
+    const cat = categories[(n + i * 7) % categories.length];
+    const pool = PROBLEMS.filter(p => p.category === cat && !selected.includes(p.id));
+    if (pool.length > 0) {
+      const pick = pool[(n + i * 13) % pool.length];
+      selected.push(pick.id);
+    }
+  }
+
+  // Fill remaining slots if needed
+  const remaining = PROBLEMS.filter(p => !selected.includes(p.id));
+  while (selected.length < 5 && remaining.length > 0) {
+    selected.push(remaining.splice(0, 1)[0].id);
+  }
+
+  return selected;
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+}
+
+function updateQuestProgress() {
+  const solved = state.todaySolved;
+  const pct = (solved / 5) * 100;
+  document.getElementById('solved-count').textContent = solved;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const stars = document.querySelectorAll('.progress-star');
+  stars.forEach((s, i) => {
+    s.classList.toggle('earned', i < solved);
+  });
+}
+
+function renderCurrentProblem() {
+  const area = document.getElementById('problem-area');
+
+  if (state.todaySolved >= 5) {
+    area.innerHTML = `
+      <div class="all-done-card">
+        <span class="trophy-big">🏆</span>
+        <h2>Quest Complete!</h2>
+        <p>You crushed all 5 challenges today, ${state.name}!<br>Come back tomorrow for new ones. 🔥</p>
+        <p style="margin-top:16px;color:var(--gold);font-weight:800;">Streak: ${state.dayStreak} days 🔥</p>
+      </div>`;
+    return;
+  }
+
+  const prob = todayProblems[currentProblemIdx];
+  if (!prob) return;
+
+  const diffDots = [1,2,3].map(n => `<span class="${n <= prob.difficulty ? 'filled' : ''}"></span>`).join('');
+
+  area.innerHTML = `
+    <div class="problem-card" id="prob-card">
+      <div class="problem-meta">
+        <span class="problem-emoji">${prob.emoji}</span>
+        <span class="problem-title">${prob.title}</span>
+        <span class="problem-category">${prob.category}</span>
+        <div class="difficulty-dots">${diffDots}</div>
+      </div>
+      <div class="problem-text">${prob.problem}</div>
+      <div class="answer-area">
+        <input type="text" class="answer-input" id="answer-input"
+          placeholder="Your answer..." autocomplete="off"
+          onkeydown="if(event.key==='Enter') checkAnswer()">
+        <button class="btn-hint" id="hint-btn" onclick="getHint()">💡 Hint</button>
+        <button class="btn-check" id="check-btn" onclick="checkAnswer()">Check ✓</button>
+      </div>
+      <div class="tutor-response" id="tutor-resp"></div>
+      <button class="btn-next" id="next-btn" onclick="nextProblem()">Next Challenge →</button>
+    </div>`;
+
+  document.getElementById('answer-input').focus();
+}
+
+async function checkAnswer() {
+  const input = document.getElementById('answer-input');
+  const answer = input.value.trim();
+  if (!answer) return;
+
+  const prob = todayProblems[currentProblemIdx];
+  const checkBtn = document.getElementById('check-btn');
+  const hintBtn = document.getElementById('hint-btn');
+  const resp = document.getElementById('tutor-resp');
+
+  checkBtn.disabled = true;
+  hintBtn.disabled = true;
+  input.disabled = true;
+
+  resp.className = 'tutor-response visible loading';
+  resp.textContent = 'Checking... ';
+
+  try {
+    const result = await fetch('/api/evaluate', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        problem: prob.problem,
+        correctAnswer: prob.answerKey,
+        studentAnswer: answer
+      })
+    });
+    const data = await result.json();
+
+    resp.className = 'tutor-response visible';
+    resp.innerHTML = data.content || data.error;
+
+    if (data.isCorrect) {
+      document.getElementById('prob-card').classList.add('correct');
+      onCorrectAnswer(prob);
+    } else {
+      document.getElementById('prob-card').classList.add('wrong');
+      setTimeout(() => document.getElementById('prob-card')?.classList.remove('wrong'), 500);
+      input.disabled = false;
+      checkBtn.disabled = false;
+      hintBtn.disabled = false;
+      input.value = '';
+      input.focus();
+    }
+  } catch(e) {
+    resp.className = 'tutor-response visible';
+    resp.textContent = 'Hmm, connection issue. Try again!';
+    checkBtn.disabled = false;
+    hintBtn.disabled = false;
+    input.disabled = false;
+  }
+}
+
+async function getHint() {
+  const prob = todayProblems[currentProblemIdx];
+  const hintBtn = document.getElementById('hint-btn');
+  const resp = document.getElementById('tutor-resp');
+
+  hintBtn.disabled = true;
+  resp.className = 'tutor-response visible loading';
+  resp.textContent = 'Getting hint... ';
+
+  try {
+    const result = await fetch('/api/evaluate', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        problem: prob.problem,
+        correctAnswer: prob.answerKey,
+        studentAnswer: '',
+        hintRequest: true
+      })
+    });
+    const data = await result.json();
+    resp.className = 'tutor-response visible';
+    resp.innerHTML = data.content || data.error;
+    hintBtn.textContent = '💡 Used';
+  } catch(e) {
+    resp.className = 'tutor-response visible';
+    resp.textContent = 'Could not get hint right now!';
+    hintBtn.disabled = false;
+  }
+}
+
+function onCorrectAnswer(prob) {
+  const xpGain = prob.difficulty === 1 ? 10 : prob.difficulty === 2 ? 20 : 30;
+  state.xp += xpGain;
+  state.totalCorrect += 1;
+  state.correctInARow += 1;
+  if (state.correctInARow >= 3) state.streak3 = true;
+  if (state.correctInARow >= 5) state.streak5 = true;
+  state.categoryCount[prob.category] = (state.categoryCount[prob.category] || 0) + 1;
+  state.todaySolved += 1;
+  if (state.todaySolved >= 5) state.questComplete = true;
+
+  checkBadges();
+  updateHeader();
+  updateQuestProgress();
+  showXPPopup('+' + xpGain + ' XP! 🌟');
+  if (xpGain >= 20) celebrateConfetti();
+  saveState();
+
+  document.getElementById('next-btn').classList.add('visible');
+}
+
+function nextProblem() {
+  state.correctInARow = 0;
+  currentProblemIdx++;
+  renderCurrentProblem();
+  updateQuestProgress();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PULL MODE (Chat)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChat();
+  }
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const sendBtn = document.getElementById('send-btn');
+  sendBtn.disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  appendMsg('user', text);
+  chatHistory.push({ role:'user', content: text });
+
+  const typingEl = appendTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ messages: chatHistory, mode: 'pull' })
+    });
+    const data = await res.json();
+    const reply = data.content || data.error || 'Hmm, something went wrong!';
+    typingEl.remove();
+    appendMsg('tutor', reply);
+    chatHistory.push({ role:'assistant', content: reply });
+  } catch(e) {
+    typingEl.remove();
+    appendMsg('tutor', 'Connection hiccup! Try sending again. 😅');
+  }
+
+  sendBtn.disabled = false;
+  input.focus();
+}
+
+function appendMsg(role, text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = role === 'user' ? 'msg msg-user' : 'msg msg-tutor';
+  if (role === 'tutor') {
+    div.innerHTML = `<span class="tutor-label">MathQuest</span>${escapeHtml(text)}`;
+  } else {
+    div.textContent = text;
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function appendTyping() {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg-typing';
+  div.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VOICE INPUT
+// ═══════════════════════════════════════════════════════════════════════════
+
+function toggleVoice() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Voice input is not supported in this browser. Try Chrome!');
+    return;
+  }
+
+  if (isListening) {
+    recognition.stop();
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('voice-btn').classList.add('listening');
+    document.getElementById('voice-btn').textContent = '🔴';
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    document.getElementById('chat-input').value = transcript;
+    autoResize(document.getElementById('chat-input'));
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    document.getElementById('voice-btn').classList.remove('listening');
+    document.getElementById('voice-btn').textContent = '🎤';
+  };
+
+  recognition.onerror = (e) => {
+    isListening = false;
+    document.getElementById('voice-btn').classList.remove('listening');
+    document.getElementById('voice-btn').textContent = '🎤';
+  };
+
+  recognition.start();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BADGES
+// ═══════════════════════════════════════════════════════════════════════════
+
+function buildBadges() {
+  // Ensure earnedBadges is an array
+  if (!Array.isArray(state.earnedBadges)) state.earnedBadges = [];
+}
+
+function checkBadges() {
+  const newBadges = [];
+  for (const badge of BADGES) {
+    if (!state.earnedBadges.includes(badge.id) && badge.check(state)) {
+      state.earnedBadges.push(badge.id);
+      newBadges.push(badge);
+    }
+  }
+  if (newBadges.length > 0) {
+    saveState();
+    newBadges.forEach(b => showBadgeAlert(b));
+  }
+}
+
+function showBadgeAlert(badge) {
+  const popup = document.getElementById('xp-popup');
+  popup.textContent = `🏆 New Badge: ${badge.name}!`;
+  popup.style.display = 'block';
+  popup.style.animation = 'none';
+  void popup.offsetWidth;
+  popup.style.animation = 'xpFloat 2s ease-out forwards';
+  popup.style.background = 'linear-gradient(135deg, var(--gold), #ff6b00)';
+  setTimeout(() => { popup.style.display = 'none'; }, 2100);
+}
+
+function renderBadgesScreen() {
+  const cur = getCurrentLevel();
+  const next = getNextLevel();
+
+  document.getElementById('level-display').textContent = `Level ${cur.level}: ${cur.name}`;
+  document.getElementById('xp-display').textContent = state.xp + ' XP';
+
+  let pct = 0;
+  if (next) {
+    const curXp = state.xp - cur.xpNeeded;
+    const needed = next.xpNeeded - cur.xpNeeded;
+    pct = Math.min(100, Math.round((curXp / needed) * 100));
+    document.getElementById('next-level-display').textContent = (next.xpNeeded - state.xp) + ' XP to Level ' + next.level;
+  } else {
+    pct = 100;
+    document.getElementById('next-level-display').textContent = 'MAX LEVEL! 👑';
+  }
+
+  const bar = document.getElementById('level-bar');
+  bar.style.width = pct + '%';
+  bar.textContent = pct > 10 ? pct + '%' : '';
+
+  const earned = state.earnedBadges.length;
+  document.getElementById('badges-subtitle').textContent = `${earned}/${BADGES.length} badges earned`;
+
+  const grid = document.getElementById('badges-grid');
+  grid.innerHTML = BADGES.map(b => {
+    const e = state.earnedBadges.includes(b.id);
+    return `<div class="badge-card ${e ? 'earned' : 'locked'}">
+      <span class="badge-icon">${b.icon}</span>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CELEBRATIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function showXPPopup(text) {
+  const popup = document.getElementById('xp-popup');
+  popup.textContent = text;
+  popup.style.background = 'linear-gradient(135deg, var(--gold), #ff9500)';
+  popup.style.display = 'block';
+  popup.style.animation = 'none';
+  void popup.offsetWidth;
+  popup.style.animation = 'xpFloat 1.5s ease-out forwards';
+  setTimeout(() => { popup.style.display = 'none'; }, 1600);
+}
+
+function celebrateConfetti() {
+  const container = document.getElementById('celebration');
+  container.style.display = 'block';
+  container.innerHTML = '';
+
+  const colors = ['#e94560','#7c3aed','#06d6a0','#ffd60a','#4cc9f0','#f77f00'];
+
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.top = '-20px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (8 + Math.random() * 8) + 'px';
+    piece.style.height = (8 + Math.random() * 12) + 'px';
+    piece.style.transform = `rotate(${Math.random()*360}deg)`;
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    piece.style.animationDuration = (1.5 + Math.random()) + 's';
+    container.appendChild(piece);
+  }
+
+  setTimeout(() => {
+    container.style.display = 'none';
+    container.innerHTML = '';
+  }, 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════════════════
+
+init();
+</script>
+</body>
+</html>
