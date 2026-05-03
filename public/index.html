@@ -1288,20 +1288,45 @@ async function sendChat() {
 
   const typingEl = appendTyping();
 
+  let warmMsgShown = false;
+  const warmTimer = setTimeout(() => {
+    warmMsgShown = true;
+    typingEl.querySelector('.typing-text') && (typingEl.querySelector('.typing-text').textContent = 'Waking up the math brain... ⏰ (about 30 sec on first visit)');
+  }, 4000);
+
+  async function tryFetch(attempt) {
+    const ctrl = new AbortController();
+    const timeoutId = setTimeout(() => ctrl.abort(), 90000);
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ messages: chatHistory, mode: 'pull' }),
+        signal: ctrl.signal
+      });
+      clearTimeout(timeoutId);
+      return await res.json();
+    } catch(e) {
+      clearTimeout(timeoutId);
+      if (attempt < 2) {
+        await new Promise(r => setTimeout(r, 2000));
+        return tryFetch(attempt + 1);
+      }
+      throw e;
+    }
+  }
+
   try {
-    const res = await fetch('/api/chat', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ messages: chatHistory, mode: 'pull' })
-    });
-    const data = await res.json();
+    const data = await tryFetch(0);
+    clearTimeout(warmTimer);
     const reply = data.content || data.error || 'Hmm, something went wrong!';
     typingEl.remove();
     appendMsg('tutor', reply);
     chatHistory.push({ role:'assistant', content: reply });
   } catch(e) {
+    clearTimeout(warmTimer);
     typingEl.remove();
-    appendMsg('tutor', 'Connection hiccup! Try sending again. 😅');
+    appendMsg('tutor', 'Hmm, the server is still waking up. Give it a few seconds and try again! 🌱');
   }
 
   sendBtn.disabled = false;
@@ -1326,7 +1351,7 @@ function appendTyping() {
   const msgs = document.getElementById('chat-messages');
   const div = document.createElement('div');
   div.className = 'msg-typing';
-  div.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
+  div.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div><span class="typing-text" style="margin-left:8px;font-size:0.85em;color:#a8b3cf;"></span>`;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
   return div;
@@ -1499,6 +1524,13 @@ function celebrateConfetti() {
 // ═══════════════════════════════════════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════════════════════════════════════
+
+// Warm up the server immediately so it's awake by the time he types
+fetch('/api/chat', {
+  method: 'POST',
+  headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({ messages: [{role:'user', content:'ping'}], mode: 'pull', warmup: true })
+}).catch(() => {});
 
 init();
 </script>
